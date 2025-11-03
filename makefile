@@ -1,9 +1,10 @@
 CC = gcc
-SRC = main.c board.c
+SRC = main.c board.c ui.c game_loops.c
 TARGET = go
 
-INCLUDE = -I/opt/homebrew/include/SDL3
-LIBS = -L/opt/homebrew/lib -lSDL3
+INCLUDE = -I/opt/homebrew/Cellar/raylib/5.5/include
+LIBS = -L/opt/homebrew/Cellar/raylib/5.5/lib -lraylib \
+       -framework OpenGL -framework Cocoa -framework IOKit
 
 
 .PHONY: hello build run clean

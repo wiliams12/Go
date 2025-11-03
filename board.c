@@ -15,12 +15,12 @@ int **create_board(void) {
 // white: 2
 int place_stone(int **board, int player, Pos pos) {
     if (is_move_valid(board, player, pos)) {
-        board[pos.y][pos.x];
+        board[pos.y][pos.x] = player;
         return 0;
     }
     return 1;
 }
 
 bool is_move_valid(int **board, int player, Pos pos) {
-    return true;
+    return ((pos.x >= 0) && (pos.x <= BOARD_SIZE) && (pos.y >= 0) && (pos.y <= BOARD_SIZE) );
 }
