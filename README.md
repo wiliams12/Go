@@ -4,7 +4,8 @@
 
 # Technologies
 - C, C++, RayLib
-- Bresenham Circle Algorithm
 # Purpose
-- Educational project to get acquainted with SDL 3.0
+- Educational project to get more acquianted with RayLib
 - Play with combining C and C++ files (engine will be written in C++)
+- practicing complex algorithms (the rules of Go)
+- Learning how AI bots are trained and implemented

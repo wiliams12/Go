@@ -4,7 +4,7 @@
 
 int tile_size = WINDOW_SIZE / (BOARD_SIZE + 1);
 
-int draw_board(int **board, int player) {
+int draw_board(int **board) {
     ClearBackground((Color){214, 181, 105});
 
     for (int i = 0; i < BOARD_SIZE; i++) {
@@ -20,11 +20,11 @@ int draw_board(int **board, int player) {
     return 0;
 }
 
-int draw_stone(int player, Pos pos) {
+int draw_stone(int current_player, Pos pos) {
     Color color;
-    if (player == 1) {
+    if (current_player == 1) {
         color = BLACK;
-    } else if (player == 2){
+    } else if (current_player == 2){
         color = WHITE;
     } else {
         return 1;
@@ -44,7 +44,17 @@ Pos get_move(int **board) {
 }
 
 int set_up(void) {
-    InitWindow(WINDOW_SIZE, WINDOW_SIZE, "Go");
+    InitWindow(WINDOW_SIZE, WINDOW_SIZE + BAR_SIZE, "Go");
     SetTargetFPS(FPS);
     return 0;
+}
+
+void DrawTextCentered(const char *text, Rectangle rect, int fontSize, Color color) {
+    int textWidth = MeasureText(text, fontSize);
+    int textHeight = fontSize;
+
+    int x = rect.x + (rect.width - textWidth) / 2;
+    int y = rect.y + (rect.height - textHeight) / 2;
+
+    DrawText(text, x, y, fontSize, color);
 }
