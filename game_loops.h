@@ -1,4 +1,4 @@
 #include"board.h"
 #include"ui.h"
 
-int two_players(int **previous_board, int **board, int **captured);
+int two_players(int **board, int **captured);

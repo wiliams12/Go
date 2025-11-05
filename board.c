@@ -24,42 +24,21 @@ int **copy_board(int **board) {
 // players are represented by a number:
 // black: 1
 // white: 2
-int place_stone(int **previous_board, Pos *previous_move, int **board, Player player, Pos pos, Player previous_player) {
-    if (is_move_valid(previous_board, board, player, pos, previous_player)) {
-        if (previous_move == NULL) {
-            previous_move = &pos;
-        } else {
-            if (place_stone(NULL, NULL, previous_board, previous_player, *previous_move, player) == 1) {
-                printf("internal error: mismatch in board history\n");
-                return 1;
-            }
-        }
+int place_stone(int **board, Player player, Pos pos) {
+    if (is_move_valid(board, player, pos)) {
         board[pos.y][pos.x] = player.num;
         return 0;
     }
     return 1;
 }
 
-bool is_move_valid(int **previous_board, int **board, Player player, Pos pos, Player previous_player) {
+bool is_move_valid(int **board, Player player, Pos pos) {
     if (!((pos.x >= 0) && (pos.x < BOARD_SIZE) && (pos.y >= 0) && (pos.y < BOARD_SIZE))) {
         return false;
     }
     if (board[pos.y][pos.x] != 0) {
         return false;
     }
-    
-    int **future_board = copy_board(board);
-    if (future_board == NULL) {
-        printf("Run out of memory\n");
-        return false;
-    }
-    place_stone(NULL, NULL, future_board, player, pos, previous_player);
-
-    if (compare_boards(previous_board, future_board)) {
-        free(future_board);
-        return false;
-    }
-    free(future_board);
     return true;
 }
 
