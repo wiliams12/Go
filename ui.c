@@ -12,6 +12,10 @@ int draw_board(int **board) {
         DrawLine(tile_size*(i+1), tile_size, tile_size*(i+1), WINDOW_SIZE-tile_size, BLACK);
     }
 
+    for (int i = 0; i < 9; i++) {
+        DrawCircle(tile_size*(4+(i/3) * 6), tile_size*(4+(i%3) * 6), tile_size/16, BLACK);
+    }
+
     for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
         int current = board[i / BOARD_SIZE][i % BOARD_SIZE];
         draw_stone(current, (Pos){i % BOARD_SIZE, i / BOARD_SIZE});

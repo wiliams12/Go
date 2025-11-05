@@ -9,6 +9,35 @@ int **create_board(void) {
     return arr;
 }
 
+void initGroupList(GroupList *list) {
+    list->size = 0;
+    list->capacity = 8;
+    list->groups = malloc(list->capacity * sizeof(Group));
+}
+
+void initGroup(Group *group) {
+    group->size = 0;
+    group->capacity = 4;
+    group->stones = malloc(group->capacity * sizeof(Pos));
+}
+
+void addStoneToGroup(Group *group, Pos pos) {
+    if (group->size >= group->capacity) {
+        group->capacity *= 2;
+        group->stones = realloc(group->stones, group->capacity * sizeof(Pos));
+    }
+    group->stones[group->size++] = pos;
+}
+
+void addGroup(GroupList *list, Group group) {
+    if (list->size >= list->capacity) {
+        list->capacity *= 2;
+        list->groups = realloc(list->groups, list->capacity * sizeof(Group));
+    }
+    list->groups[list->size++] = group;
+}
+
+
 int **copy_board(int **board) {
     int **copy = calloc(BOARD_SIZE, sizeof(int *));
     for (int i = 0; i < BOARD_SIZE; i++) {
@@ -43,7 +72,7 @@ bool is_move_valid(int **board, Player player, Pos pos) {
 }
 
 bool is_captured(int **board, int **captured, Player player) {
-
+    // TODO
 }
 
 // returns the number of captured stones
