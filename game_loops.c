@@ -1,6 +1,6 @@
 #include"game_loops.h"
 
-int two_players(int **board, int **captured) {
+int two_players(int **previous_board, int **board, int **captured) {
     bool running = true;
     Player players[2] = {(Player){BLACK, 0, 1}, (Player){WHITE, 0, 2}};
     int turn = 0;
@@ -10,6 +10,7 @@ int two_players(int **board, int **captured) {
 
     while (!WindowShouldClose()) {
         running = true;
+        int *previous_move = NULL;
         while (running && !WindowShouldClose()) {
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                 Vector2 mouse = GetMousePosition();
@@ -23,7 +24,7 @@ int two_players(int **board, int **captured) {
                 }
 
                 Pos move = get_move(board);
-                if (place_stone(board, players[turn % 2], move) == 0) {
+                if (place_stone(previous_board, previous_move, board, players[turn % 2], move, players[(turn + 1) % 2]) == 0) {
                     running = false;
                     if (is_captured(board, captured, players[turn % 2])) {
                         int num_of_captured = remove_from_board(board, captured);
