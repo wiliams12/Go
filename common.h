@@ -20,24 +20,22 @@ typedef struct {
     Color color;
     int captured;
     int num;
+    int score;
 } Player;
 
 typedef struct {
     Pos *stones;
-    int liberties;
     int capacity;
     int size;
+    Pos *liberties;
+    int liberty_count;
+    int liberty_capacity;
 } Group;
 
-typedef struct {
-    Group *groups;
-    int capacity;
-    int size;
-} GroupList;
 
 typedef struct {
     int **board;
-    Group **groups;
+    Group ***groups;
 } Board;
 
 

@@ -1,18 +1,26 @@
-#include"common.h"
+#include "common.h"
 
 #define BOARD_SIZE 19
 
-bool is_move_valid(int **board, Player player, Pos pos);
-int place_stone(int **board, Player player, Pos pos);
-int **create_board(void);
-bool is_captured(int **board, int **captured, Player player);
-int remove_from_board(int **board, int **captured);
-bool compare_boards(int **board_1, int **board_2);
-int **copy_board(int **board);
-void update_group_array(GroupList **pointer, Pos to_add);
+bool is_move_valid(Board *board, Player player, Pos pos);
+int place_stone(Board *board, Player player, Pos pos);
+Board *create_board(void);
+int captures(Board *board, Pos move, Player player);
+int remove_from_board(Board *board, Group *captured);
+bool compare_boards(Board *board_1, Board *board_2);
+int **copy_board(Board *board);
 
+// Group functions
 void initGroup(Group *group);
-void initGroupList(GroupList *list);
+void addStoneToGroup(Board *board, Group *group, Pos pos); // now handles liberties
+void mergeGroups(Board *board, Group *dest, Group *src);    // updates board and liberties
 
-void addStoneToGroup(Group *group, Pos pos);
-void addGroup(GroupList *list, Group group);
+// Liberties functions
+int getLiberties(Board *board, Pos pos, Pos **out_liberties);
+int removeDuplicateLiberties(Pos *liberties, int count);
+bool libertyExists(Pos *liberties, int count, Pos pos);
+
+bool mergeWithAdjacentGroups(Board *board, Pos move, int player_color);
+
+int remove_liberty(Group *group, Pos to_remove);
+int update_liberties(Board *board, Group *captured);

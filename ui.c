@@ -4,7 +4,7 @@
 
 int tile_size = WINDOW_SIZE / (BOARD_SIZE + 1);
 
-int draw_board(int **board) {
+int draw_board(Board *board) {
     ClearBackground((Color){214, 181, 105});
 
     for (int i = 0; i < BOARD_SIZE; i++) {
@@ -17,18 +17,19 @@ int draw_board(int **board) {
     }
 
     for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
-        int current = board[i / BOARD_SIZE][i % BOARD_SIZE];
-        draw_stone(current, (Pos){i % BOARD_SIZE, i / BOARD_SIZE});
+        int current = board->board[i / BOARD_SIZE][i % BOARD_SIZE];
+        draw_stone(board, (Pos){i % BOARD_SIZE, i / BOARD_SIZE});
     }
 
     return 0;
+
 }
 
-int draw_stone(int current_player, Pos pos) {
+int draw_stone(Board *board, Pos pos) {
     Color color;
-    if (current_player == 1) {
+    if (board->board[pos.y][pos.x] == 1) {
         color = BLACK;
-    } else if (current_player == 2){
+    } else if (board->board[pos.y][pos.x] == 2){
         color = WHITE;
     } else {
         return 1;
@@ -39,7 +40,7 @@ int draw_stone(int current_player, Pos pos) {
     return 0;
 }
 
-Pos get_move(int **board) {
+Pos get_move(void) {
     Vector2 mouse_pos = GetMousePosition();
     Pos board_pos;
     board_pos.x = (int)roundf(mouse_pos.x / tile_size) - 1;

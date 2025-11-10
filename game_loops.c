@@ -1,20 +1,14 @@
 #include"game_loops.h"
 
-int two_players(int **board, int **captured) {
+int two_players(Board *board) {
     bool running = true;
-    Player players[2] = {(Player){BLACK, 0, 1}, (Player){WHITE, 0, 2}};
+    Player players[2] = {(Player){BLACK, 0, 1, 0}, (Player){WHITE, 0, 2, 0}};
     int turn = 0;
 
     Rectangle pass_btn = { WINDOW_SIZE / 8, WINDOW_SIZE - WINDOW_SIZE / BOARD_SIZE + BAR_SIZE / 2, WINDOW_SIZE / 8, BAR_SIZE };
     Rectangle reset_btn = { WINDOW_SIZE * 6/ 8, WINDOW_SIZE - WINDOW_SIZE / BOARD_SIZE + BAR_SIZE / 2, WINDOW_SIZE / 8, BAR_SIZE};
     Rectangle white_score_rect = { WINDOW_SIZE * 7/ 8 + MARGIN, WINDOW_SIZE - WINDOW_SIZE / BOARD_SIZE + BAR_SIZE / 2, WINDOW_SIZE / 8 - MARGIN * 2, BAR_SIZE};
     Rectangle black_score_rect = {MARGIN, WINDOW_SIZE - WINDOW_SIZE / BOARD_SIZE + BAR_SIZE / 2, WINDOW_SIZE / 8 - MARGIN * 2, BAR_SIZE};
-
-    int white_score = 0;
-    int black_score = 0;
-
-    GroupList **groups;
-    //initGroupList(groups);
 
     while (!WindowShouldClose()) {
         running = true;
@@ -30,14 +24,22 @@ int two_players(int **board, int **captured) {
                     printf("Reset\n");
                 }
 
-                Pos move = get_move(board);
+                Pos move = get_move();
                 if (place_stone(board, players[turn % 2], move) == 0) {
                     running = false;
                     // TODO Do grouping here 
-                    
-                    if (is_captured(board, captured, players[turn % 2])) {
-                        int num_of_captured = remove_from_board(board, captured);
+                    // Logic:
+                    // create new group or add to group
+                    // check vicinity for groups to be added to (check color of the group)
+                    // update liberties of adjacent groups + count this ones liberties
+                    if (!mergeWithAdjacentGroups(board, move, players[turn % 2].num)) {
+                        Group *group = malloc(sizeof(Group));
+                        initGroup(group);
+                        board->groups[move.y][move.x] = group;
+                        addStoneToGroup(board, group, move);
                     }
+
+                    players[(turn + 1) % 2].score += captures(board, move, players[turn % 2]);
                 };
             }
             BeginDrawing();
@@ -48,22 +50,25 @@ int two_players(int **board, int **captured) {
             DrawRectangleRec(reset_btn, players[turn % 2].color);
             DrawTextCentered("Reset", reset_btn, BAR_SIZE / 2, players[(turn + 1) % 2].color);
             
-            DrawRectangleRec(white_score_rect, WHITE);
+            DrawCircle(white_score_rect.x + white_score_rect.width / 2,
+           white_score_rect.y + white_score_rect.height / 2,
+           white_score_rect.width / 3, WHITE);
+
             char buffer[16];
-            sprintf(buffer, "%d", white_score);
+            sprintf(buffer, "%d", players[1].score);
             DrawTextCentered(buffer, white_score_rect, BAR_SIZE / 2, BLACK);
 
-            DrawRectangleRec(black_score_rect, BLACK);
-            sprintf(buffer, "%d", black_score);
+            DrawCircle(black_score_rect.x + black_score_rect.width / 2,
+           black_score_rect.y + black_score_rect.height / 2,
+           black_score_rect.width / 3, BLACK);
+
+            sprintf(buffer, "%d", players[0].score);
             DrawTextCentered(buffer, black_score_rect, BAR_SIZE / 2, WHITE);
             
             EndDrawing();
         }
         turn++;
     }
-    // TODO:
-        // update to be better
-
-        CloseWindow();
-        return 0;
+    CloseWindow();
+    return 0;
 }

@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "math.h": "c",
-        "game_loops.h": "c"
+        "game_loops.h": "c",
+        "bitset": "c",
+        "unordered_map": "c"
     }
 }
