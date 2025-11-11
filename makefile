@@ -1,5 +1,5 @@
 CC = gcc
-SRC = main.c board.c ui.c game_loops.c
+SRC = main.c board.c ui.c game_loops.c hash.c
 TARGET = go
 
 INCLUDE = -I/opt/homebrew/Cellar/raylib/5.5/include

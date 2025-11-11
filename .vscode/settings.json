@@ -3,6 +3,8 @@
         "math.h": "c",
         "game_loops.h": "c",
         "bitset": "c",
-        "unordered_map": "c"
+        "unordered_map": "c",
+        "__locale": "c",
+        "vector": "c"
     }
 }

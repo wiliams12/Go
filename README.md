@@ -5,10 +5,17 @@
 # Technologies
 - C, C++, RayLib
 - Zobrist hash for position comparison
+
 # Purpose
 - Educational project to get more acquianted with RayLib
 - Play with combining C and C++ files (engine will be written in C++)
 - practicing complex algorithms (the rules of Go)
 - Learning how AI bots are trained and implemented
+
 # Go implementation
 - implements only Ko (only immediate repetition is forbidden, other repetition are permitted)
+
+# Major challenge
+- No source materials
+- I need to be 100% independent
+- I will only follow the architecture of AlphaGo

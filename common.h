@@ -1,7 +1,3 @@
-#include<stdio.h>
-#include<stdbool.h>
-#include<stdlib.h>
-#include<raylib.h>
 
 #ifndef COMMON
 #define COMMON
@@ -10,6 +6,12 @@
 #define WINDOW_SIZE 700
 #define BAR_SIZE 50
 #define MARGIN 5
+
+#include<stdio.h>
+#include<stdbool.h>
+#include<stdlib.h>
+#include<raylib.h>
+#include <time.h>
 
 typedef struct {
     int x;
@@ -36,6 +38,11 @@ typedef struct {
 typedef struct {
     int **board;
     Group ***groups;
+    uint64_t hash;
+    uint64_t *hash_table;
+    uint64_t *board_history;
+    int history_size;
+    int history_capacity;
 } Board;
 
 

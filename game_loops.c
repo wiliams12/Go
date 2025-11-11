@@ -1,4 +1,5 @@
 #include"game_loops.h"
+#include"hash.h"
 
 int two_players(Board *board) {
     bool running = true;
@@ -27,17 +28,16 @@ int two_players(Board *board) {
                 Pos move = get_move();
                 if (place_stone(board, players[turn % 2], move) == 0) {
                     running = false;
-                    // TODO Do grouping here 
-                    // Logic:
-                    // create new group or add to group
-                    // check vicinity for groups to be added to (check color of the group)
-                    // update liberties of adjacent groups + count this ones liberties
+
                     if (!mergeWithAdjacentGroups(board, move, players[turn % 2].num)) {
                         Group *group = malloc(sizeof(Group));
                         initGroup(group);
                         board->groups[move.y][move.x] = group;
                         addStoneToGroup(board, group, move);
                     }
+
+                    update_hash(board, move, players[turn % 2].num);
+                    update_board_history(board);
 
                     players[(turn + 1) % 2].score += captures(board, move, players[turn % 2]);
                 };

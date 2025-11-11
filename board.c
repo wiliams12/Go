@@ -13,6 +13,19 @@ Board *create_board(void) {
         b->groups[i] = calloc(BOARD_SIZE, sizeof(Group *));
     }
 
+    b->hash = 0;
+
+    b->hash_table = malloc(sizeof(uint64_t) * BOARD_SIZE * BOARD_SIZE * 2);
+
+
+    int size = 10;
+    b->board_history = malloc(sizeof(uint64_t) * size);
+
+    b->history_capacity = size;
+
+    b->history_size = 0;
+    
+
     return b;
 }
 
@@ -219,19 +232,59 @@ int place_stone(Board *board, Player player, Pos pos) {
     return 1;
 }
 
-bool is_move_valid(Board *board, Player player, Pos pos) {
-    if (pos.x < 0 || pos.x > BOARD_SIZE || pos.y < 0 || pos.y > BOARD_SIZE) {
+bool is_suicide(Board *board, Player player, Pos pos) {
+    int dirs[4][2] = {{0,1},{1,0},{0,-1},{-1,0}}; // up, right, down, left
+    bool suicide = true;
+    bool is_capture = false;
+
+    for (int i = 0; i < 4; i++) {
+        int nx = pos.x + dirs[i][0];
+        int ny = pos.y + dirs[i][1];
+
+        if (nx < 0 || ny < 0 || nx >= BOARD_SIZE || ny >= BOARD_SIZE)
+            continue;
+
+        if (board->board[ny][nx] == 0) {
+            suicide = false;
+        } else if (board->board[ny][nx] == player.num) {
+            if (board->groups[ny][nx]->liberty_count > 1) {
+                suicide = false;
+            }
+        }
+        if (board->groups[ny][nx] != NULL && board->board[ny][nx] != player.num) {
+            if (board->groups[ny][nx]->liberty_count == 1) {
+                is_capture = true;
+            }
+        }
+
+    }
+    return !is_capture && suicide;
+}
+
+bool is_move_valid(Board *board, Player player, Pos move) {
+    if (move.x < 0 || move.x > BOARD_SIZE || move.y < 0 || move.y > BOARD_SIZE) {
         return false;
     }
-    if (board->board[pos.y][pos.x] != 0) {
+    if (board->board[move.y][move.x] != 0) {
         return false;
     }
-    Pos *new_libs;
-    if (getLiberties(board, pos, &new_libs) == 0) {
-        free(new_libs);
+    
+    if (is_suicide(board, player, move)) {
+        return false;
+    }
+    if (is_repetition(board, player.num, move)) {
         return false;
     }
     return true;
+}
+
+bool is_repetition(Board *board, int player, Pos move) {
+    bool repetition = false;
+    update_hash(board, move, player);
+    repetition = is_repeated_position(board);
+    update_hash(board, move, player);
+    return repetition;
+
 }
 
 int captures(Board *board, Pos move, Player player) {
@@ -263,8 +316,12 @@ int remove_from_board(Board *board, Group *captured) {
 
     for (int i = 0; i < captured->size; i++) {
         Pos pos = captured->stones[i];
+
+        update_hash(board, pos, board->board[pos.y][pos.x]);
+
         board->board[pos.y][pos.x] = 0;
         board->groups[pos.y][pos.x] = NULL;
+
 
         for (int d = 0; d < 4; d++) {
             int nx = pos.x + dirs[d][0];
