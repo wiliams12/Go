@@ -1,7 +1,7 @@
 #include "common.h"
 #include"hash.h"
 
-#define BOARD_SIZE 19
+#define BOARD_SIZE 9
 
 bool is_move_valid(Board *board, Player player, Pos pos);
 int place_stone(Board *board, Player player, Pos pos);
@@ -28,3 +28,6 @@ int update_liberties(Board *board, Group *captured);
 
 bool is_suicide(Board *board, Player player, Pos pos);
 bool is_repetition(Board *board, int player, Pos move);
+
+void score_board(Board *board, int *black_score, int *white_score);
+void flood_fill(Board *board, int x, int y, bool **visited, bool *touch_black, bool *touch_white, int *region_size);

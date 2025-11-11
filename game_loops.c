@@ -18,29 +18,34 @@ int two_players(Board *board) {
                 Vector2 mouse = GetMousePosition();
 
                 if (CheckCollisionPointRec(mouse, pass_btn)) {
-                    printf("Pass\n");
+                    turn++;     
+                } else if (CheckCollisionPointRec(mouse, reset_btn)) {
+                    turn = 0;
+                    board = create_board();
+                    players[0].score = 0;
+                    players[1].score = 0;
+                } else {
+                    Pos move = get_move();
+                    if (place_stone(board, players[turn % 2], move) == 0) {
+                        running = false;
+
+                        if (!mergeWithAdjacentGroups(board, move, players[turn % 2].num)) {
+                            Group *group = malloc(sizeof(Group));
+                            initGroup(group);
+                            board->groups[move.y][move.x] = group;
+                            addStoneToGroup(board, group, move);
+                        }
+
+                        update_hash(board, move, players[turn % 2].num);
+                        update_board_history(board);
+
+                        players[(turn + 1) % 2].score += captures(board, move, players[turn % 2]);
+
+                        int black, white = 0;
+                        score_board(board, &black, &white);
+                        // printf("Black: %d, White: %d\n", black, white);
+                    };
                 }
-
-                if (CheckCollisionPointRec(mouse, reset_btn)) {
-                    printf("Reset\n");
-                }
-
-                Pos move = get_move();
-                if (place_stone(board, players[turn % 2], move) == 0) {
-                    running = false;
-
-                    if (!mergeWithAdjacentGroups(board, move, players[turn % 2].num)) {
-                        Group *group = malloc(sizeof(Group));
-                        initGroup(group);
-                        board->groups[move.y][move.x] = group;
-                        addStoneToGroup(board, group, move);
-                    }
-
-                    update_hash(board, move, players[turn % 2].num);
-                    update_board_history(board);
-
-                    players[(turn + 1) % 2].score += captures(board, move, players[turn % 2]);
-                };
             }
             BeginDrawing();
 

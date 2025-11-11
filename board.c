@@ -262,7 +262,7 @@ bool is_suicide(Board *board, Player player, Pos pos) {
 }
 
 bool is_move_valid(Board *board, Player player, Pos move) {
-    if (move.x < 0 || move.x > BOARD_SIZE || move.y < 0 || move.y > BOARD_SIZE) {
+    if (move.x < 0 || move.x >= BOARD_SIZE || move.y < 0 || move.y >= BOARD_SIZE) {
         return false;
     }
     if (board->board[move.y][move.x] != 0) {
@@ -361,4 +361,68 @@ bool compare_boards(Board *board_1, Board *board_2) {
         }
     }
     return true;
+}
+
+// Helper flood-fill function
+void flood_fill(Board *board, int x, int y, bool **visited, bool *touch_black, bool *touch_white, int *region_size) {
+    if (x < 0 || y < 0 || x >= BOARD_SIZE || y >= BOARD_SIZE) return;
+    if (visited[y][x]) return;
+    visited[y][x] = true;
+
+    int color = board->board[y][x];
+    if (color == 1) { *touch_black = true; return; }
+    if (color == 2) { *touch_white = true; return; }
+
+    (*region_size)++;
+
+    flood_fill(board, x+1, y, visited, touch_black, touch_white, region_size);
+    flood_fill(board, x-1, y, visited, touch_black, touch_white, region_size);
+    flood_fill(board, x, y+1, visited, touch_black, touch_white, region_size);
+    flood_fill(board, x, y-1, visited, touch_black, touch_white, region_size);
+}
+
+// Main scoring function
+
+// Is more of a crude evaluation, doesn't consider life and dead.
+// But it should be possible to be used in training because Monte Carlo Search should cancel out the problems if played till end
+
+void score_board(Board *board, int *black_score, int *white_score) {
+    *black_score = 0;
+    *white_score = 0;
+
+    // Allocate visited array
+    bool **visited = malloc(BOARD_SIZE * sizeof(bool*));
+    for (int y = 0; y < BOARD_SIZE; y++) {
+        visited[y] = calloc(BOARD_SIZE, sizeof(bool));
+    }
+
+    // Count stones and mark visited
+    for (int y = 0; y < BOARD_SIZE; y++) {
+        for (int x = 0; x < BOARD_SIZE; x++) {
+            int color = board->board[y][x];
+            if (color == 1) (*black_score)++;
+            else if (color == 2) (*white_score)++;
+        }
+    }
+
+    // Scan empty regions
+    for (int y = 0; y < BOARD_SIZE; y++) {
+        for (int x = 0; x < BOARD_SIZE; x++) {
+            if (board->board[y][x] != 0 || visited[y][x]) continue;
+
+            int region_size = 0;
+            bool touch_black = false, touch_white = false;
+
+            flood_fill(board, x, y, visited, &touch_black, &touch_white, &region_size);
+
+            // Assign territory
+            if (touch_black && !touch_white) *black_score += region_size;
+            else if (touch_white && !touch_black) *white_score += region_size;
+            // else: neutral, do nothing
+        }
+    }
+
+    // Free visited array
+    for (int y = 0; y < BOARD_SIZE; y++) free(visited[y]);
+    free(visited);
 }
