@@ -102,3 +102,26 @@ void DrawTextCentered(const char *text, Rectangle rect, int fontSize, Color colo
 
     DrawText(text, x, y, fontSize, color);
 }
+
+void draw_bar(Player *players, Bar *bar, int turn) {
+    DrawRectangleRec(bar->pass_btn, players[turn % 2].color);
+    DrawTextCentered("Pass", bar->pass_btn, BAR_SIZE / 2, players[(turn + 1) % 2].color);
+    DrawRectangleRec(bar->reset_btn, players[turn % 2].color);
+    DrawTextCentered("Reset", bar->reset_btn, BAR_SIZE / 2, players[(turn + 1) % 2].color);
+    
+    DrawCircle(bar->white_score_rect.x + bar->white_score_rect.width / 2,
+    bar->white_score_rect.y + bar->white_score_rect.height / 2,
+    bar->white_score_rect.width / 3, WHITE);
+
+    char buffer[16];
+    sprintf(buffer, "%.1f", players[1].score);
+    DrawTextCentered(buffer, bar->white_score_rect, BAR_SIZE / 2, BLACK);
+
+    DrawCircle(bar->black_score_rect.x + bar->black_score_rect.width / 2,
+    bar->black_score_rect.y + bar->black_score_rect.height / 2,
+    bar->black_score_rect.width / 3, BLACK);
+
+    sprintf(buffer, "%.1f", players[0].score);
+    DrawTextCentered(buffer, bar->black_score_rect, BAR_SIZE / 2, WHITE);
+    
+}

@@ -37,30 +37,27 @@ void update_hash(Board *board, Pos move, int player) {
 }
 
 
-int update_board_history(Board *board) {
-    if (board->history_size >= board->history_capacity) {
+int update_board_history(Board *board, Pos move) {
+    if (board->move_num >= board->history_capacity) {
         board->history_capacity *= 2;
         board->board_history = realloc(board->board_history, board->history_capacity * sizeof(uint64_t));
-        if(board->board_history == NULL) {
+        board->moves = realloc(board->moves, board->history_capacity * sizeof(Pos));
+        board->captured = realloc(board->captured, board->history_capacity * sizeof(Group));
+        if(board->board_history == NULL || board->moves == NULL) {
             printf("Internal error: board history can't be stored\n");
         }
     }
-    board->board_history[board->history_size++] = board->hash;
+    board->board_history[board->move_num] = board->hash;
+    board->moves[board->move_num] = move;
     return 0;
 }
 
 // Checks for repetition (Ko / Superko)
 bool is_repeated_position(Board *board) {
-    for (int i = board->history_size; i >= 0; i--) {
+    for (int i = board->move_num; i >= 0; i--) {
         if (board->board_history[i] == board->hash) {
             return true;
         }
     }
     return false;
 }
-
-// TODO: keep an array of past positions, iterate to find difference (start at end)
-
-// Then do scoring
-
-// ! headers are fucked up

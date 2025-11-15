@@ -1,4 +1,5 @@
 #include"board.h"
+#include"engine_helpers.h"
 
 Board *create_board(void) {
     Board *b = malloc(sizeof(Board));
@@ -23,7 +24,12 @@ Board *create_board(void) {
 
     b->history_capacity = size;
 
-    b->history_size = 0;
+    b->move_num = 0;
+
+    b->moves = malloc(sizeof(Pos) * size);
+    b->moves[0] = (Pos){.x=-1, .y=-1};
+
+    b->captured = malloc(sizeof(Group) * size);
     
 
     return b;
@@ -206,33 +212,20 @@ int removeDuplicateLiberties(Pos *liberties, int count) {
 
 
 
-// ! ------------------------------------------------- Needs to probably deep copy groups as well ----- Might not be useful
-
-int **copy_board(Board *board) {
-    Board *copy = create_board();
-    for (int i = 0; i < BOARD_SIZE; i++) {
-        for (int j = 0; j < BOARD_SIZE; j++) {
-            copy->board[i][j] = board->board[i][j];
-        }
-    }
-
-}
-
-// ! ------------
 
 // places a move on the board if the move is valid
 // players are represented by a number:
 // black: 1
 // white: 2
-int place_stone(Board *board, Player player, Pos pos) {
+int place_stone(Board *board, Player *player, Pos pos) {
     if (is_move_valid(board, player, pos)) {
-        board->board[pos.y][pos.x] = player.num;
+        board->board[pos.y][pos.x] = player->num;
         return 0;
     }
     return 1;
 }
 
-bool is_suicide(Board *board, Player player, Pos pos) {
+bool is_suicide(Board *board, Player *player, Pos pos) {
     int dirs[4][2] = {{0,1},{1,0},{0,-1},{-1,0}}; // up, right, down, left
     bool suicide = true;
     bool is_capture = false;
@@ -246,12 +239,12 @@ bool is_suicide(Board *board, Player player, Pos pos) {
 
         if (board->board[ny][nx] == 0) {
             suicide = false;
-        } else if (board->board[ny][nx] == player.num) {
+        } else if (board->board[ny][nx] == player->num) {
             if (board->groups[ny][nx]->liberty_count > 1) {
                 suicide = false;
             }
         }
-        if (board->groups[ny][nx] != NULL && board->board[ny][nx] != player.num) {
+        if (board->groups[ny][nx] != NULL && board->board[ny][nx] != player->num) {
             if (board->groups[ny][nx]->liberty_count == 1) {
                 is_capture = true;
             }
@@ -261,7 +254,7 @@ bool is_suicide(Board *board, Player player, Pos pos) {
     return !is_capture && suicide;
 }
 
-bool is_move_valid(Board *board, Player player, Pos move) {
+bool is_move_valid(Board *board, Player *player, Pos move) {
     if (move.x < 0 || move.x >= BOARD_SIZE || move.y < 0 || move.y >= BOARD_SIZE) {
         return false;
     }
@@ -272,7 +265,7 @@ bool is_move_valid(Board *board, Player player, Pos move) {
     if (is_suicide(board, player, move)) {
         return false;
     }
-    if (is_repetition(board, player.num, move)) {
+    if (is_repetition(board, player->num, move)) {
         return false;
     }
     return true;
@@ -316,13 +309,14 @@ int remove_from_board(Board *board, Group *captured) {
 
     for (int i = 0; i < captured->size; i++) {
         Pos pos = captured->stones[i];
-
+        
         update_hash(board, pos, board->board[pos.y][pos.x]);
-
+        
         board->board[pos.y][pos.x] = 0;
         board->groups[pos.y][pos.x] = NULL;
-
-
+        board->captured[board->move_num] = captured; // !!!
+        
+        
         for (int d = 0; d < 4; d++) {
             int nx = pos.x + dirs[d][0];
             int ny = pos.y + dirs[d][1];
@@ -345,10 +339,6 @@ int remove_from_board(Board *board, Group *captured) {
         }
     }
     int size = captured->size;
-    
-    free(captured->stones);
-    free(captured->liberties);
-    free(captured);
 
     return size;
 }
@@ -386,8 +376,8 @@ void flood_fill(Board *board, int x, int y, bool **visited, bool *touch_black, b
 // Is more of a crude evaluation, doesn't consider life and dead.
 // But it should be possible to be used in training because Monte Carlo Search should cancel out the problems if played till end
 
-void score_board(Board *board, int *black_score, int *white_score) {
-    *black_score = 0;
+void score_board(Board *board, float *black_score, float *white_score) {
+    *black_score = KOMI;
     *white_score = 0;
 
     // Allocate visited array
@@ -425,4 +415,24 @@ void score_board(Board *board, int *black_score, int *white_score) {
     // Free visited array
     for (int y = 0; y < BOARD_SIZE; y++) free(visited[y]);
     free(visited);
+}
+
+// No need to check for the board being filled, because that state is invalid by definition, it would change the liberties to zero
+bool is_over(Board *board, Player *players) {
+    int size = board->move_num;
+    uint64_t *history = board->board_history;
+    if (size == 2) {
+        if (board->hash == 0) {
+            return true;
+        } else {
+            return false;
+        }
+                
+    } else if (size < 3) {
+        return false;
+    } else if (board->hash == history[size - 2] && board->hash == history[size - 3]) {
+        return true;
+    } else {
+        return false;
+    }
 }
