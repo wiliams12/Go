@@ -10,3 +10,4 @@ void DrawTextCentered(const char *text, Rectangle rect, int fontSize, Color colo
 void draw_hoshi(int board_size, float tile_size);
 
 void draw_bar(Player *players, Bar *bar, int turn);
+void print_board(Board *board);

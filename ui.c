@@ -125,3 +125,14 @@ void draw_bar(Player *players, Bar *bar, int turn) {
     DrawTextCentered(buffer, bar->black_score_rect, BAR_SIZE / 2, WHITE);
     
 }
+
+void print_board(Board *board) {
+    for (int y = 0; y < BOARD_SIZE; y++) {
+        for (int x = 0; x < BOARD_SIZE; x++) {
+            int v = board->board[y][x];
+            char c = (v == 0 ? '.' : (v == 1 ? 'X' : 'O'));
+            printf("%c ", c);
+        }
+        printf("\n");
+    }
+}

@@ -50,3 +50,5 @@ int two_players(Board *board) {
     CloseWindow();
     return 0;
 }
+
+
