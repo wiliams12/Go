@@ -1,5 +1,6 @@
 #include"board.h"
 #include"engine_helpers.h"
+#include"hash.h"
 
 Board *create_board(void) {
     Board *b = malloc(sizeof(Board));

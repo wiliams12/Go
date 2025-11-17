@@ -31,7 +31,7 @@ int two_players(Board *board) {
                     players[1].score = 0;
                 } else {
                     Pos move = get_move();
-                    if (play_move(board, move, players, turn)) {
+                    if (play_move(board, move, players)) {
                         running = false;
                     }
                 }

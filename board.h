@@ -1,5 +1,4 @@
 #include "common.h"
-#include"hash.h"
 
 #define BOARD_SIZE 9
 

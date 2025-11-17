@@ -1,4 +1,5 @@
 #include"engine_helpers.h"
+#include"hash.h"
 
 
 int get_legal_moves(Board *board, Pos *moves, Player *player) {
@@ -18,18 +19,18 @@ int get_legal_moves(Board *board, Pos *moves, Player *player) {
     return found;
 }
 
-bool play_move(Board *board, Pos move, Player *players, int turn) {
-    if (place_stone(board, &players[turn % 2], move) == 0) {
-        if (!mergeWithAdjacentGroups(board, move, players[turn % 2].num)) {
+bool play_move(Board *board, Pos move, Player *players) {
+    if (place_stone(board, &players[board->move_num % 2], move) == 0) {
+        if (!mergeWithAdjacentGroups(board, move, players[board->move_num % 2].num)) {
             Group *group = malloc(sizeof(Group));
             initGroup(group);
             board->groups[move.y][move.x] = group;
             addStoneToGroup(board, group, move);
         }
-        update_hash(board, move, players[turn % 2].num);
+        update_hash(board, move, players[board->move_num % 2].num);
         update_board_history(board, move);
 
-        players[(turn + 1) % 2].score += captures(board, move, players[turn % 2]);
+        players[board->move_num % 2 == 1].score += captures(board, move, players[board->move_num % 2]);
         board->move_num++;
         return true;
     } else {

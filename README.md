@@ -17,5 +17,6 @@
 
 # Major challenge
 - No source materials
-- I need to be 100% independent
-- I will only follow the architecture of AlphaGo
+- I need to be 100% independent (no comprehensive guides, code too complex for a chatbot)
+- I will only follow the architecture of similar programs, implementing everything myself
+- Not enough computational power for training
