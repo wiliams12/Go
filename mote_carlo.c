@@ -52,6 +52,8 @@ int get_children(Board *board, Node **nodes) {
     free(moves);
 }
 
+
+// ! free everything after use
 int expansion(Node *parent, Board *board) {
     if (parent->children != NULL) {
         return parent->children_count;
@@ -72,28 +74,56 @@ int expansion(Node *parent, Board *board) {
 }
 
 
-bool apply_move(Board *board, Node *move, Player *players) {
-    play_move(board, move->pos, players);
-}
-
-int simulation(Node *start, Board *board, Player *players) {
+int simulation(Board *board, Player *players) {
+    int simulated = 0;
+    int root_player = board->move_num;
 
     while (!is_over(board, players)) {
 
-        Node *moves = malloc(sizeof(Node) * BOARD_SIZE * BOARD_SIZE);
-        int count = get_children(baord, moves);
+        Pos *moves = malloc(sizeof(Pos) * BOARD_SIZE * BOARD_SIZE);
+        int count = get_legal_moves(baord, moves, players[board->move_num % 2]);
 
         int idx = rand() % count;
-        apply_move(board, moves[idx], players);
+        play_move(board, moves[idx], players);
+        simulated++;
+        free(moves);
     }
 
-    // 3) Return the result from perspective of the player
-    // who started the simulation
-    int result = get_result(sim); 
-    // expected: +1 win, -1 loss, 0 draw
+    int black_score = 0;
+    int white_score = 0;
+    score_board(board, &black_score, &white_score);
+
+    int delta = black_score - white_score;
+    // draw shouldn't happen, but better to have everything covered
+    int result = 0;
+
+    if (players[root_player % 2]) {
+        if (delta > 0) {
+            result = 1;
+        } else if (delta < 0) {
+            result = -1;
+        } else {
+            printf("internal error: simulation ended in a draw")
+        }
+    } else {
+        if (delta > 0) {
+            result = -1;
+        } else if (delta < 0) {
+            result = 1;
+        } else {
+            printf("internal error: simulation ended in a draw")
+        }
+    }
+
+    for (int i = simulated - 1; i >= 0; i--) {
+        undo_move(board);
+    }
 
     return result;
 }
 
 
-int backpropagation();
+int backpropagation() {
+    
+}
+

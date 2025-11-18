@@ -414,7 +414,9 @@ void score_board(Board *board, float *black_score, float *white_score) {
     }
 
     // Free visited array
-    for (int y = 0; y < BOARD_SIZE; y++) free(visited[y]);
+    for (int y = 0; y < BOARD_SIZE; y++) {
+        free(visited[y]);
+    }
     free(visited);
 }
 

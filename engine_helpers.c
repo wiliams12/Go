@@ -38,24 +38,6 @@ bool play_move(Board *board, Pos move, Player *players) {
     }
 }
 
-/*bool undo_move(Board *board) {
-    board->hash = board->board_history[board->move_num-2];
-    Pos last_move = board->moves[board->move_num-1];
-    board->board[last_move.y][last_move.x] = 0;
-
-    // No need to change the values in the arrays with int etc. because they still take up that space so it is almost useless and complicated
-    board->move_num--;
-    // Can decrement before because it would be the index move_num-1
-    Group *captured = board->captured[board->move_num];
-
-    if (captured != NULL) {
-        free(captured->stones);
-        free(captured->liberties);
-        free(captured);
-    }
-    return true;
-}*/
-
 bool undo_move(Board *board) {
     if (board->move_num <= 0)
         return false;

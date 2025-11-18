@@ -22,3 +22,5 @@ int simulation(Node *start, Board *board, Player *players);
 int backpropagation();
 
 bool apply_move(Board *board, Node *move, Player *players);
+
+Node *copy_end_node(const Node *src);
