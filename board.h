@@ -5,7 +5,7 @@
 bool is_move_valid(Board *board, Player *player, Pos pos);
 int place_stone(Board *board, Player *player, Pos pos);
 Board *create_board(void);
-int captures(Board *board, Pos move, Player player);
+int captures(Board *board, Pos move);
 int remove_from_board(Board *board, Group *captured);
 bool compare_boards(Board *board_1, Board *board_2);
 

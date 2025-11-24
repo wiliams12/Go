@@ -6,7 +6,7 @@ int get_legal_moves(Board *board, Pos *moves, Player *player) {
     int found = 0;
     for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
         Pos current = {i / BOARD_SIZE, i % BOARD_SIZE};
-        if (board->board[current.y][current.x]== 0) {
+        if (board->board[current.y][current.x] == 0) {
             if (is_move_valid(board, player, current)) {
                 if (moves != NULL) {
                     moves[found++] = (Pos){i / BOARD_SIZE, i % BOARD_SIZE};
@@ -30,7 +30,7 @@ bool play_move(Board *board, Pos move, Player *players) {
         update_hash(board, move, players[board->move_num % 2].num);
         update_board_history(board, move);
 
-        players[board->move_num % 2 == 1].score += captures(board, move, players[board->move_num % 2]);
+        players[board->move_num % 2 == 1].score += captures(board, move);
         board->move_num++;
         return true;
     } else {

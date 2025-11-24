@@ -281,7 +281,7 @@ bool is_repetition(Board *board, int player, Pos move) {
 
 }
 
-int captures(Board *board, Pos move, Player player) {
+int captures(Board *board, Pos move) {
     int dirs[4][2] = {{0,1},{1,0},{0,-1},{-1,0}}; // up, right, down, left
     int count = 0;
 

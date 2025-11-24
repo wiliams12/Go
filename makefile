@@ -1,5 +1,5 @@
-CC = gcc
-SRC = main.c board.c ui.c game_loops.c hash.c engine_helpers.c
+CC = clang
+SRC = main.c board.c ui.c game_loops.c hash.c engine_helpers.c monte_carlo.c
 TARGET = go
 
 INCLUDE = -I/opt/homebrew/Cellar/raylib/5.5/include
@@ -12,11 +12,11 @@ hello:
 	@echo "Use 'make build' to compile, 'make run' to execute, or 'make asan' to run with AddressSanitizer"
 
 build: $(SRC)
-	$(CC) $(SRC) -o $(TARGET) $(INCLUDE) $(LIBS)
+	$(CC) $(CFLAGS) $(SRC) -o $(TARGET) $(INCLUDE) $(LIBS)
+
 
 run: build
 	./$(TARGET)
-
 
 clean:
 	rm -f $(TARGET)

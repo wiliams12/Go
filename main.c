@@ -7,7 +7,8 @@ int main(void) {
     init_zobrist(board);
     init_hash(board);
     set_up();
-    two_players(board);
+    // two_players(board);
+    computer(board);
     free(board);
     return 0;
 }
