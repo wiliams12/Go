@@ -39,37 +39,66 @@ bool play_move(Board *board, Pos move, Player *players) {
 }
 
 bool undo_move(Board *board) {
-    if (board->move_num <= 0)
+    // ! issues with switching players
+    if (board->move_num <= 0) {
         return false;
-
-    int idx = board->move_num - 1;
-
-    if (board->move_num >= 2)
-        board->hash = board->board_history[board->move_num - 2];
-    else
+    }
+        
+    if (board->move_num < 2) {
         board->hash = 0;
-
-    Pos last = board->moves[idx];
+    }
+    board->move_num--;
+    
+    Pos last = board->moves[board->move_num];
     int last_color = board->board[last.y][last.x];
     update_hash(board, last, last_color);
     board->board[last.y][last.x] = 0;
     board->groups[last.y][last.x] = NULL;
+    
+    Pos dirs[4] = {
+        { last.x + 1, last.y },
+        { last.x - 1, last.y },
+        { last.x, last.y + 1 },
+        { last.x, last.y - 1 }
+    };
 
-    Group *cap = board->captured[idx];
+    for (int d = 0; d < 4; d++) {
+        int x = dirs[d].x;
+        int y = dirs[d].y;
+
+        if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE)
+            continue;
+
+        if (board->groups[y][x] == NULL) {
+            continue;
+        }
+
+        Group *group = board->groups[y][x];
+        if (group->liberty_count >= group->liberty_capacity) {
+            int new_cap = group->liberty_capacity * 2;
+            Pos *new_arr = realloc(group->liberties, new_cap * sizeof(Pos));
+            if (!new_arr) {
+                printf("Memory error: Couldn't allocate memory.\n");
+                continue;
+            }
+            group->liberties = new_arr;
+            group->liberty_capacity = new_cap;
+        }
+        group->liberties[group->liberty_count++] = (Pos){ last.x, last.y };
+    }
+
+    Group *cap = board->captured[board->move_num]; // ! this is shady
     if (cap != NULL) {
         // restore all stones in the captured group
         undo_capture(board, cap);
-    } else {
-        printf("no capture\n");
     }
 
-    board->move_num--;
 
     if (cap != NULL) {
         free(cap->stones);
         free(cap->liberties);
         free(cap);
-        board->captured[idx] = NULL;
+        board->captured[board->move_num] = NULL;
     }
 
     return true;
@@ -80,7 +109,9 @@ void undo_capture(Board *board, Group *captured) {
 
     int restored_color = (board->move_num % 2 == 1) ? 2 : 1;
 
+
     for (int i = 0; i < captured->size; i++) {
+
         Pos pos = captured->stones[i];
 
         board->board[pos.y][pos.x] = restored_color;

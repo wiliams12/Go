@@ -435,6 +435,10 @@ bool is_over(Board *board, Player *players) {
         return false;
     } else if (board->hash == history[size - 2] && board->hash == history[size - 3]) {
         return true;
+    }
+    Pos *moves = malloc(sizeof(Pos) * BOARD_SIZE * BOARD_SIZE);
+    if (get_legal_moves(board, moves, &players[board->move_num % 2]) == 0) {
+        return true;
     } else {
         return false;
     }

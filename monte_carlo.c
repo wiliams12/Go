@@ -23,8 +23,8 @@ int selection(Node **moves, int numMoves, Board *board) {
     for (int i = 0; i < numMoves; i++) {
         float policy = policyNetwork(*moves[i], board);
 
-        float score = policy + (moves[i]->wins/moves[i]->visits+1) +
-                    EXPLORATION_PAR * sqrt(log(TOTAL_VISITS) / (1 + moves[i]->visits));
+        float score = policy + ((float)moves[i]->wins/moves[i]->visits+1) +
+                    EXPLORATION_PAR * sqrt(log(moves[i]->parent->visits) / (1 + moves[i]->visits));
 
         if (score > bestValue) {
             bestValue = score;
@@ -63,11 +63,12 @@ int expansion(Node *parent, Board *board, Player *players) {
         return parent->children_count;
     }
 
-    parent->children = malloc(sizeof(Node*) * BOARD_SIZE * BOARD_SIZE);
-    parent->children_count = 0;
-
+    
     Node *moves = malloc(sizeof(Node) * BOARD_SIZE * BOARD_SIZE);
     int num_moves = get_children(board, moves, players);
+    
+    parent->children = malloc(sizeof(Node*) * num_moves);
+    parent->children_count = 0;
 
     for (int i = 0; i < num_moves; i++) {
 
@@ -94,19 +95,22 @@ int simulation(Board *board, Player *players) {
     int simulated = 0;
     int root_player = board->move_num;
 
-    // ! Seg is here
     while (!is_over(board, players)) {
 
         Pos *moves = malloc(sizeof(Pos) * BOARD_SIZE * BOARD_SIZE);
         int count = get_legal_moves(board, moves, &players[board->move_num % 2]);
+
+        if (count != 0) {
+            break;
+        }
 
         int idx = rand() % count;
         if (!play_move(board, moves[idx], players)) {
             printf("internal error\n");
         }
         simulated++;
+        free(moves);
     }
-    printf("left while\n");
 
     float black_score = 0;
     float white_score = 0;
@@ -134,7 +138,8 @@ int simulation(Board *board, Player *players) {
         }
     }
 
-    for (int i = simulated - 1; i >= 0; i--) {
+
+    for (int i = 0; i < simulated; i++) {
         undo_move(board);
     }
 
@@ -160,9 +165,7 @@ void backpropagation(Node *leaf, int result) {
 Pos mcts_get_best_move(Board *board, Node *root_state, Player *players, int iterations) {
     // Run MCTS search
     mcts(board, root_state, players, iterations);
-
-    printf("not in mcts\n");
-
+\
     // No children = no legal moves (e.g., pass)
     if (root_state->children_count == 0) {
         return (Pos){ .x = -1, .y = -1 };
@@ -192,13 +195,10 @@ void mcts(Board *board, Node *root_state, Player *players, int iterations) {
 
         while (current_state->children != NULL &&
             current_state->children_count > 0) {
-                
-            printf("in selection\n");        
+     
             int idx = selection(current_state->children,
                                 current_state->children_count,
                                 board);
-
-            printf("not in selection\n");
 
             play_move(board, current_state->children[idx]->pos, players);
 
@@ -206,10 +206,7 @@ void mcts(Board *board, Node *root_state, Player *players, int iterations) {
         }
 
         if (!is_over(board, players)) {
-
-            printf("in expansion\n");
             expansion(current_state, board, players);
-            printf("not in expansion\n");
 
             // Choose one of the newly expanded children
             if (current_state->children_count > 0) {
@@ -221,13 +218,13 @@ void mcts(Board *board, Node *root_state, Player *players, int iterations) {
             }
         }
 
-        printf("in simualtion\n");
         int result = simulation(board, players);
-        printf("not in simualtion\n");
 
-        printf("in backpropagation\n");
         backpropagation(current_state, result);
-        printf("not in backpropagation\n");
+
+        if (board == NULL) {
+            printf("chyba\n");
+        }
 
         while (board->move_num > root_depth) {
             undo_move(board);
