@@ -139,9 +139,9 @@ int simulation(Board *board, Player *players) {
     }
 
 
-    for (int i = 0; i < simulated; i++) {
+    /*for (int i = 0; i < simulated; i++) {
         undo_move(board);
-    }
+    }*/
 
     return result;
 }
@@ -161,10 +161,17 @@ void backpropagation(Node *leaf, int result) {
     }
 }
 
+// ! Add pass, it might fix something
+
 // Returns the best move after running MCTS on root_state
 Pos mcts_get_best_move(Board *board, Node *root_state, Player *players, int iterations) {
+    int black_score = players[0].score;
+    int white_score = players[1].score;
     // Run MCTS search
-    mcts(board, root_state, players, iterations);
+    printf("before\n");
+    Board *temp = copy_board(board);
+    printf("after\n");
+    mcts(temp, root_state, players, iterations);
 \
     // No children = no legal moves (e.g., pass)
     if (root_state->children_count == 0) {
@@ -181,6 +188,9 @@ Pos mcts_get_best_move(Board *board, Node *root_state, Player *players, int iter
             best_idx = i;
         }
     }
+
+    players[0].score = black_score;
+    players[1].score = white_score;
 
     return root_state->children[best_idx]->pos;
 }
@@ -226,9 +236,9 @@ void mcts(Board *board, Node *root_state, Player *players, int iterations) {
             printf("chyba\n");
         }
 
-        while (board->move_num > root_depth) {
+        /*while (board->move_num > root_depth) {
             undo_move(board);
-        }
+        }*/
     }
 }
 

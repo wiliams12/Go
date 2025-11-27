@@ -45,7 +45,7 @@ typedef struct {
     int move_num;
     int history_capacity;
     Pos *moves;
-    Group **captured;
+    Group **captured; // array of captured stones per move
 } Board;
 
 typedef struct {

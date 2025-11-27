@@ -1,6 +1,6 @@
 #include "common.h"
 
-#define BOARD_SIZE 9
+#define BOARD_SIZE 4
 
 bool is_move_valid(Board *board, Player *player, Pos pos);
 int place_stone(Board *board, Player *player, Pos pos);
@@ -22,7 +22,6 @@ bool libertyExists(Pos *liberties, int count, Pos pos);
 bool mergeWithAdjacentGroups(Board *board, Pos move, int player_color);
 
 int remove_liberty(Group *group, Pos to_remove);
-int update_liberties(Board *board, Group *captured);
 
 bool is_suicide(Board *board, Player *player, Pos pos);
 bool is_repetition(Board *board, int player, Pos move);

@@ -101,7 +101,7 @@ int computer(Board *board) {
             root->children = NULL;
             root->children_count = 0;
             root->parent = NULL; 
-            Pos move = mcts_get_best_move(board, root, players, 10);
+            Pos move = mcts_get_best_move(board, root, players, 10000);
             // ! Fucks up liberties
             // ! Fucks up color turn
             if (move.x != -1 && move.y != -1) {

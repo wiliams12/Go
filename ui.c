@@ -62,9 +62,39 @@ void draw_hoshi(int board_size, float tile_size) {
     }
 }
 
-
-
 int draw_stone(Board *board, Pos pos) {
+    // read stone color
+    int v = board->board[pos.y][pos.x];
+    if (v == 0) return 1;
+
+    Color color = (v == 1 ? BLACK : WHITE);
+
+    // draw the stone
+    int cx = tile_size * (pos.x + 1);
+    int cy = tile_size * (pos.y + 1);
+    int r  = tile_size / 2 - 1;
+
+    DrawCircle(cx, cy, r, color);
+
+    // get liberty count
+    Group *g = board->groups[pos.y][pos.x];
+    if (g != NULL) {
+        char buf[8];
+        snprintf(buf, sizeof(buf), "%d", g->liberty_count);
+
+        // text color opposite of stone so it stays readable
+        Color tcol = (v == 1 ? WHITE : BLACK);
+
+        // center text
+        int tw = MeasureText(buf, r);
+        DrawText(buf, cx - tw/2, cy - r/2, r, tcol);
+    }
+
+    return 0;
+}
+
+
+/*int draw_stone(Board *board, Pos pos) {
     Color color;
     if (board->board[pos.y][pos.x] == 1) {
         color = BLACK;
@@ -77,7 +107,7 @@ int draw_stone(Board *board, Pos pos) {
     DrawCircle(tile_size*(pos.x+1), tile_size*(pos.y+1), tile_size/2 - 1, color);
     
     return 0;
-}
+}*/
 
 Pos get_move(void) {
     Vector2 mouse_pos = GetMousePosition();
@@ -124,15 +154,4 @@ void draw_bar(Player *players, Bar *bar, int turn) {
     sprintf(buffer, "%.1f", players[0].score);
     DrawTextCentered(buffer, bar->black_score_rect, BAR_SIZE / 2, WHITE);
     
-}
-
-void print_board(Board *board) {
-    for (int y = 0; y < BOARD_SIZE; y++) {
-        for (int x = 0; x < BOARD_SIZE; x++) {
-            int v = board->board[y][x];
-            char c = (v == 0 ? '.' : (v == 1 ? 'X' : 'O'));
-            printf("%c ", c);
-        }
-        printf("\n");
-    }
 }

@@ -188,32 +188,6 @@ int remove_liberty(Group *group, Pos to_remove) {
 }
 
 
-
-// Remove duplicates in-place and return new count
-int removeDuplicateLiberties(Pos *liberties, int count) {
-    if (count <= 1) {
-        return count;
-    }
-    int new_count = 0;
-    for (int i = 0; i < count; i++) {
-        bool duplicate = false;
-        for (int j = 0; j < new_count; j++) {
-            if (liberties[i].x == liberties[j].x && liberties[i].y == liberties[j].y) {
-                duplicate = true;
-                break;
-            }
-        }
-        if (!duplicate) {
-            liberties[new_count++] = liberties[i];
-        }
-    }
-    return new_count;
-}
-
-
-
-
-
 // places a move on the board if the move is valid
 // players are represented by a number:
 // black: 1
